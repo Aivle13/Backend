@@ -15,8 +15,6 @@ from django.contrib.auth.models import User
 # Model (CRUD 대상)
 from patient.models import Patient
 
-
-
 @api_view(['POST'])
 def signup(request):
     '''
@@ -24,21 +22,23 @@ def signup(request):
     params: patient_name, patient_password, patient_birth, patient_email
     return: 201(SUCESS) # 실패에 대한 경우도 생각해야 합니다.
     '''
-    patient_name = request.data['patient_name']
+    patient_userid = request.data['patient_userid']
     patient_password = request.data['patient_password']
 
-    user = User.objects.create_user(username=patient_name, password=patient_password)
+    user = User.objects.create_user(username=patient_userid, password=patient_password)
     token = Token.objects.create(user=user) # 토근 생성
     user.save() # AUTH_USER_MODEL의 User 저장
+    
+    patient_name = request.data['patient_name']
+    patient_birth = request.data['patient_birth']
+    patient_phone_number = request.data['patient_phone_number']
+    patient_email = request.data['patient_email']
 
-    try:
-        patient_birth = request.data['patient_birth']
-        patient_email = request.data['patient_email']
-    except:
-        patient_birth = '1998-05-21'
-        patient_email = ''
-
-    patient = Patient(author=user, patient_birth=patient_birth, patient_email=patient_email)
+    patient = Patient(author = user,
+                      patient_name = patient_name,
+                      patient_birth = patient_birth, 
+                      patient_phone_number = patient_phone_number,
+                      patient_email = patient_email)
     patient.save()
 
     return Response(token.key, status=status.HTTP_201_CREATED)
@@ -51,10 +51,11 @@ def signin(request):
     params: patient_name, patient_password
     return: token 값 (String 형식으로), 200(SUCESS) # 실패에 대한 경우도 생각해야 합니다.
     '''
-    patient_name = request.data['patient_name']
+    patient_name = request.data['patient_userid']
     patient_password = request.data['patient_password']
 
     user = authenticate(username=patient_name, password=patient_password)
+    
     if user is None:
         return Response(status=status.HTTP_401_UNAUTHORIZED) # 권한 없음
     try:
