@@ -40,8 +40,6 @@ INSTALLED_APPS = [
     'rest_framework', # DRF
     'corsheaders', # CORS 관련 추가
     'rest_framework.authtoken', # Token 인증 세팅
-
-    'user', # user를 patient와 hospital로 분리 -> 후에 삭제 필요
     'patient',
     'hospital',
 ]
