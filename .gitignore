@@ -43,3 +43,13 @@ user/migrations/__init__.py
 user/migrations/0001_initial.py
 user/migrations/__pycache__/__init__.cpython-39.pyc
 user/migrations/__pycache__/0001_initial.cpython-39.pyc
+
+### Django ###
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media
