@@ -23,17 +23,40 @@ def signup(request):
     hospital_address = request.data['hospital_address']
     hospital_phone_number = request.data['hospital_phone_number']
     hospital_department = request.data['hospital_department']
-    hospital_longitude = request.data['hospital_longitude']
+    # hospital_longitude = request.data['hospital_longitude']
     hospital_latitude = request.data['hospital_latitude']
     
     hospital = Hospital(author = user,
-                      hospital_name = hospital_name,
-                      hospital_address = hospital_address, 
-                      hospital_phone_number = hospital_phone_number,
-                      hospital_department = hospital_department,
-                      hospital_longitude = hospital_longitude,
-                      hospital_latitude = hospital_latitude,
-                      )
+                    hospital_name = hospital_name,
+                    hospital_address = hospital_address, 
+                    hospital_phone_number = hospital_phone_number,
+                    hospital_department = hospital_department,
+                    hospital_longitude = 0.0,
+                    hospital_latitude = 0.0,
+                    )
     hospital.save()
 
     return Response(token.key, status=status.HTTP_201_CREATED)
+
+@api_view(['POST'])
+def signin(request):
+    '''
+    로그인
+    params: patient_name, patient_password
+    return: token 값 (String 형식으로), 200(SUCESS) # 실패에 대한 경우도 생각해야 합니다.
+    '''
+    hospital_name = request.data['hospital_name']
+    hospital_password = request.data['hospital_password']
+
+    user = authenticate(username=hospital_name, password=hospital_password)
+    
+    if user is None:
+        return Response(status=status.HTTP_401_UNAUTHORIZED) # 권한 없음
+    try:
+        # user를 통해 token get
+        token = Token.objects.get(user=user)
+    except:
+        # [FIX]: token이 없는 경우 (token 생성 이후 기간이 지나 token이 만료되어 사라진 경우) token 재생성
+        token = Token.objects.create(user=user)
+    return Response(token.key, status=status.HTTP_200_OK)
+    
