@@ -23,12 +23,17 @@ def signup(request):
     hospital_address = request.data['hospital_address']
     hospital_phone_number = request.data['hospital_phone_number']
     hospital_department = request.data['hospital_department']
+    hospital_longitude = request.data['hospital_longitude']
+    hospital_latitude = request.data['hospital_latitude']
     
     hospital = Hospital(author = user,
                       hospital_name = hospital_name,
                       hospital_address = hospital_address, 
                       hospital_phone_number = hospital_phone_number,
-                      hospital_department = hospital_department)
+                      hospital_department = hospital_department,
+                      hospital_longitude = hospital_longitude,
+                      hospital_latitude = hospital_latitude,
+                      )
     hospital.save()
 
     return Response(token.key, status=status.HTTP_201_CREATED)
