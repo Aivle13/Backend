@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken', # Token 인증 세팅
     'patient',
     'hospital',
+    'reservation',
 ]
 
 MIDDLEWARE = [

@@ -21,4 +21,5 @@ urlpatterns = [
     #path('user/', include('user.urls')),
     path('patient/', include('patient.urls')),
     path('hospital/', include('hospital.urls')),
+    path('reservation', include('reservation.urls')),
 ]
