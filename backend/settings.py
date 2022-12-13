@@ -42,8 +42,13 @@ INSTALLED_APPS = [
     'rest_framework.authtoken', # Token 인증 세팅
     'patient',
     'hospital',
+    'reservation',
 ]
-
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ]
+}
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

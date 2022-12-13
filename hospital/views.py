@@ -23,7 +23,7 @@ def signup(request):
     hospital_address = request.data['hospital_address']
     hospital_phone_number = request.data['hospital_phone_number']
     hospital_department = request.data['hospital_department']
-    # hospital_longitude = request.data['hospital_longitude']
+    hospital_longitude = request.data['hospital_longitude']
     hospital_latitude = request.data['hospital_latitude']
     
     hospital = Hospital(author = user,
@@ -31,8 +31,8 @@ def signup(request):
                     hospital_address = hospital_address, 
                     hospital_phone_number = hospital_phone_number,
                     hospital_department = hospital_department,
-                    hospital_longitude = 0.0,
-                    hospital_latitude = 0.0,
+                    hospital_longitude = hospital_longitude,
+                    hospital_latitude = hospital_latitude,
                     )
     hospital.save()
 

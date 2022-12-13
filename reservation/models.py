@@ -8,5 +8,5 @@ class Reservation(models.Model):
     reservation_time = models.DateTimeField(auto_now_add=True)
     reservation_comment = models.TextField()
 
-    patient = models.ForeignKey(Patient)
-    hospital = models.ForeignKey(Hospital)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE)
