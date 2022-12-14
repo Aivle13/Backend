@@ -11,11 +11,12 @@ from reservation.models import Reservation
 
 @api_view(['POST'])
 def reservation(request):
-    #hospital_name =  request.GET.get('hospital_state') # 병원 이름
+    hospital_name =  request.data['hospital_state'] # 병원 이름
     reservation_comment =  request.data['reservation_comment'] # 문진표
     user = request.user # token을 통해 Auth user를 가져옴
     patient = Patient.objects.get(author=user.id) #환자 객체
-    hospital = Hospital.objects.get(hospital_name = 'Bệnh viện Bình Dân')
+    hospital = Hospital.objects.get(hospital_name = hospital_name)
+    #hospital = Hospital.objects.get(hospital_name = 'Bệnh viện Bình Dân')
     # 오류날 시 hospital_name -> 본인이 등록한 병원 입력해 넣으세요
     
     reservation = Reservation(
