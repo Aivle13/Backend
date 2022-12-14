@@ -2,10 +2,7 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.authentication import TokenAuthentication
 from django.contrib.auth.models import User
-from django.contrib.auth import get_user
 
 from patient.models import Patient
 from hospital.models import Hospital
@@ -14,9 +11,6 @@ from reservation.models import Reservation
 from django.core import serializers
 # Create your views here.
 
-""" @api_view(['POST'])
-def reservation(request):
-    # Create your views here. """
 @api_view(['POST'])
 def reservation(request):
     hospital_name =  request.data['hospital_state'] # 병원 이름
@@ -32,7 +26,6 @@ def reservation(request):
                     hospital = hospital,
                     )
     reservation.save()
-
     return Response(status=status.HTTP_200_OK)
 
 @api_view(['GET', 'POST'])
@@ -53,3 +46,16 @@ def hospital_get_delete_reservation(request):
         reservation = Reservation.objects.get(id=reservation_id)
         reservation.delete()
         return Response(status=status.HTTP_200_OK)
+
+def a():
+    hospital_data = Reservation.objects.filter(hospital=hospital)
+    print()
+    print("남은 인원 수 : " + str(hospital_data.count()))
+    print(str(reservation.pk)+ "번 고객님" ) #현재 등록한 프라이머리 키
+    
+    data = {
+        'wait_count': hospital_data.count(),
+        'user_count' : reservation.pk
+    }
+    
+    return Response(data, status=status.HTTP_200_OK)
