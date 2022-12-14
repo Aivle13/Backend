@@ -11,9 +11,11 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
+from django.core import serializers
 
 # Model (CRUD 대상)
 from patient.models import Patient
+from hospital.models import Hospital
 
 @api_view(['POST'])
 def signup(request):
@@ -65,5 +67,14 @@ def signin(request):
         # [FIX]: token이 없는 경우 (token 생성 이후 기간이 지나 token이 만료되어 사라진 경우) token 재생성
         token = Token.objects.create(user=user)
     return Response(token.key, status=status.HTTP_200_OK)
+
+    
+@api_view(['POST'])
+def hospital_srch(request):
+
+   hospital_dep = request.data['hospitalDep']
+   hospitals = serializers.serialize("json", Hospital.objects.filter(hospital_department=hospital_dep))
+   
+   return Response(hospitals, status=status.HTTP_200_OK)
     
 
