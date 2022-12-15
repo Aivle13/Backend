@@ -26,7 +26,18 @@ def reservation(request):
                     hospital = hospital,
                     )
     reservation.save()
-    return Response(status=status.HTTP_200_OK)
+    
+    hospital_data = Reservation.objects.filter(hospital=hospital)
+    print()
+    print("남은 인원 수 : " + str(hospital_data.count()))
+    print(str(reservation.pk)+ "번 고객님" ) #현재 등록한 프라이머리 키
+    
+    data = {
+        'wait_count': hospital_data.count(),
+        'user_count' : reservation.pk
+    }
+    
+    return Response(data, status=status.HTTP_200_OK)
 
 @api_view(['GET', 'POST'])
 def hospital_get_delete_reservation(request):
@@ -46,16 +57,3 @@ def hospital_get_delete_reservation(request):
         reservation = Reservation.objects.get(id=reservation_id)
         reservation.delete()
         return Response(status=status.HTTP_200_OK)
-
-def a():
-    hospital_data = Reservation.objects.filter(hospital=hospital)
-    print()
-    print("남은 인원 수 : " + str(hospital_data.count()))
-    print(str(reservation.pk)+ "번 고객님" ) #현재 등록한 프라이머리 키
-    
-    data = {
-        'wait_count': hospital_data.count(),
-        'user_count' : reservation.pk
-    }
-    
-    return Response(data, status=status.HTTP_200_OK)

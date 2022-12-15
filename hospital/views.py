@@ -7,11 +7,17 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 
 from hospital.models import Hospital
+
 import googlemaps
+gmaps = googlemaps.Client(key='AIzaSyBZ44lcIqH0s7h24HSuBQxZjEESCpQyFjE')
+
 # Create your views here.
 
 @api_view(['POST'])
 def signup(request):
+    geocode_result = gmaps.geocode(request.data['hospital_address'])
+    lat = geocode_result[0]['geometry']['location']['lat']
+    log = geocode_result[0]['geometry']['location']['lng']
     hospital_id = request.data['hospital_id']
     hospital_password = request.data['hospital_password']
 
@@ -24,19 +30,20 @@ def signup(request):
     hospital_phone_number = request.data['hospital_phone_number']
     hospital_department = request.data['hospital_department']
     try:
-        hospital_longitude = request.data['hospital_longitude']
-        hospital_latitude = request.data['hospital_latitude']
+        hospital_latitude = lat
+        hospital_longitude = log
     except:
-        hospital_longitude = 0.0
         hospital_latitude = 0.0
+        hospital_longitude = 0.0
+
     
     hospital = Hospital(author = user,
                     hospital_name = hospital_name,
                     hospital_address = hospital_address, 
                     hospital_phone_number = hospital_phone_number,
                     hospital_department = hospital_department,
-                    hospital_longitude = hospital_longitude,
                     hospital_latitude = hospital_latitude,
+                    hospital_longitude = hospital_longitude,
                     )
     hospital.save()
 
