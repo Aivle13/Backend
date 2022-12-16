@@ -70,4 +70,32 @@ def signin(request):
         # [FIX]: token이 없는 경우 (token 생성 이후 기간이 지나 token이 만료되어 사라진 경우) token 재생성
         token = Token.objects.create(user=user)
     return Response(token.key, status=status.HTTP_200_OK)
+
+@api_view(['PUT'])
+def mypage(request):
+    geocode_result = gmaps.geocode(request.data['hospital_address'])
+    lat = geocode_result[0]['geometry']['location']['lat']
+    log = geocode_result[0]['geometry']['location']['lng']
+    # hospital_password = request.data['hospital_password']
     
+    try:
+        hospital_latitude = lat
+        hospital_longitude = log
+    except:
+        hospital_latitude = 0.0
+        hospital_longitude = 0.0
+    
+    user = request.user # token을 통해서 user를 가져옴
+    hospital = Hospital.objects.get(author=user.id) #병원 객체
+    # print(request.data)
+    
+    hospital.hospital_name = request.data['hospital_name']
+    hospital.hospital_address = request.data['hospital_address']
+    hospital.hospital_phone_number = request.data['hospital_phone_number']
+    hospital.hospital_department = request.data['hospital_department']
+    hospital.hospital_longitude = hospital_longitude
+    hospital.hospital_latitude = hospital_latitude
+    
+    hospital.save()
+    
+    return Response(status=status.HTTP_200_OK)
