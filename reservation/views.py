@@ -9,6 +9,8 @@ from hospital.models import Hospital
 from reservation.models import Reservation
 
 from django.core import serializers
+from django.db.models import Q
+
 # Create your views here.
 
 @api_view(['POST'])
@@ -20,6 +22,7 @@ def reservation(request):
     hospital = Hospital.objects.get(hospital_name = hospital_name)
     # 오류날 시 hospital_name -> 본인이 등록한 병원 입력해 넣으세요
     
+
     reservation = Reservation(
                     reservation_comment = str(reservation_comment),
                     patient = patient,
@@ -27,6 +30,7 @@ def reservation(request):
                     )
     reservation.save()
     
+
     hospital_data = Reservation.objects.filter(hospital=hospital)
     print()
     print("남은 인원 수 : " + str(hospital_data.count()))
@@ -37,23 +41,31 @@ def reservation(request):
         'user_count' : reservation.pk
     }
     
+
     return Response(data, status=status.HTTP_200_OK)
 
 @api_view(['GET', 'POST'])
 def hospital_get_delete_reservation(request):
-
+    
     user = request.user
     # 진단표 가져오기 (in HOSPITAL)
-    if request.method == 'GET':
+    try:
+        state = request.data['reservation_state']
+        print(request.data['reservation_state'])
+
         hospital = Hospital.objects.get(author=user.id)
-        reservations = serializers.serialize('json', Reservation.objects.filter(hospital=hospital))
+        reservations = serializers.serialize('json', Reservation.objects.filter(Q(hospital=hospital) & Q(reservation_state = state)))
 
-        print(reservations)
         return Response(reservations, status=status.HTTP_200_OK)
-
+        
     # 승인 (in HOSPITAL)
-    elif request.method == 'POST':
+    except: 
         reservation_id = request.data['reservation_id']
+        change_state = request.data['change_state']
+        print(request.data['reservation_id'])
+
         reservation = Reservation.objects.get(id=reservation_id)
-        reservation.delete()
+        reservation.reservation_state = change_state 
+        reservation.save()
+
         return Response(status=status.HTTP_200_OK)
