@@ -17,16 +17,25 @@ from django.db.models import Q
 def reservation(request):
     user = request.user # token을 통해 Auth user를 가져옴
     if request.method == 'POST':
-        hospital_name =  request.data['hospital_state'] # 병원 이름
+        hospital_name =  request.data['name'] # 병원 이름
+        hospital_address = request.data['address'] # 병원 주소
         reservation_comment =  request.data['reservation_comment'] # 문진표
         patient = Patient.objects.get(author=user.id) #환자 객체
-        hospital = Hospital.objects.get(hospital_name = hospital_name) #병원객체
-        reservation_data = Reservation.objects.filter(hospital=hospital) #예약되있는 병원들만 빼옴
+        hospital = Hospital.objects.get(hospital_name = hospital_name, hospital_address = hospital_address)
+
+        reservation_hospital_data = Reservation.objects.filter(hospital=hospital) #예약되있는 병원들만 빼옴
+        reservation_patient_data = Reservation.objects.filter(patient=patient)
+        
+        if(reservation_patient_data.count() >= 1): #이미 예약이 되어있는지 확인
+            if reservation_patient_data[0].reservation_state == 'C':
+                pass
+            else:
+                return Response(status=status.HTTP_404_NOT_FOUND)
         
         patient_count = 0
         
-        for i in range(reservation_data.count()):
-            if patient == reservation_data[i].patient: #환자 객체끼리 비교
+        for i in range(reservation_hospital_data.count()): # 환자 객체끼리 비교
+            if patient == reservation_hospital_data[i].patient and reservation_hospital_data[i].reservation_state != 'C': 
                 patient_count += 1
                 print(patient_count)
                 
@@ -42,9 +51,8 @@ def reservation(request):
                         hospital = hospital,
                         )
         reservation.save()
-        
 
-        hospital_data = Reservation.objects.filter(hospital=hospital)
+        """ hospital_data = Reservation.objects.filter(hospital=hospital)
         
         print()
         print("남은 인원 수 : " + str(hospital_data.count()))
@@ -55,23 +63,30 @@ def reservation(request):
             'user_count' : reservation.pk,
             'my_turn' : hospital_data.count()
         }
-        
+         """
 
-        return Response(data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)
     
     elif request.method == 'GET':
-        hospital_name = request.GET['state']
-        print(user.id)
+        hospital_name = request.GET['name']
+        hospital_address = request.GET['address']
         patient = Patient.objects.get(author=user.id) #환자 객체
-        print(patient)
-        hospital = Hospital.objects.get(hospital_name = hospital_name)
-        patient_data = Reservation.objects.filter(hospital=hospital)
-        patient_pk = Reservation.objects.get(patient = patient)
-        
-        print(patient_data[0].patient)
+        # 병원 선택
+        hospital = Hospital.objects.get(hospital_name = hospital_name, hospital_address = hospital_address)
+        # 해당 병원 예약 승인 대기중
+        patient_request = Reservation.objects.filter(hospital = hospital, patient = patient, reservation_state = "A")
+
+        if patient_request.count() < 1: # 예약이 안되어있다면 404에러
+            return Response(status=status.HTTP_404_NOT_FOUND)
         
         myturn = 0
         
+        patient_data = Reservation.objects.filter(hospital = hospital, reservation_state = "A") #환자 명수
+        patient_pk = Reservation.objects.get(patient = patient, reservation_state = "A") # 고객 번호
+        
+        if patient_data.count() < 1: #환자가 없으면
+            return Response(status=status.HTTP_404_NOT_FOUND)
+    
         for i in range(patient_data.count()):
             if patient == patient_data[i].patient:
                 myturn = i+1
@@ -83,8 +98,23 @@ def reservation(request):
         }
         
         return Response(data, status=status.HTTP_200_OK)
-    
-    
+
+@api_view(['DELETE'])
+def reservation_cancel(request):
+    user = request.user
+    patient = Patient.objects.get(author=user.id)
+    hospital_name = request.GET['name']
+    hospital_address = request.GET['address']
+    hospital = Hospital.objects.get(hospital_name = hospital_name, hospital_address = hospital_address)
+    try :
+        patient_data = Reservation.objects.get(patient = patient, hospital = hospital, reservation_state = "P") # 고객 번호
+    except:
+        patient_data = Reservation.objects.get(patient = patient, hospital = hospital, reservation_state = "A") # 고객 번호
+    print(patient_data)
+    patient_data.delete()
+    return Response(status=status.HTTP_200_OK)
+
+
 @api_view(['GET', 'POST'])
 def hospital_get_delete_reservation(request):
     
@@ -110,3 +140,5 @@ def hospital_get_delete_reservation(request):
         reservation.save()
 
         return Response(status=status.HTTP_200_OK)
+    
+    

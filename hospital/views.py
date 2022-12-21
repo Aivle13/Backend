@@ -9,8 +9,8 @@ from django.contrib.auth.models import User
 from hospital.models import Hospital
 
 import googlemaps
-gmaps = googlemaps.Client(key='AIzaSyBZ44lcIqH0s7h24HSuBQxZjEESCpQyFjE')
 
+gmaps = googlemaps.Client(key='AIzaSyBZ44lcIqH0s7h24HSuBQxZjEESCpQyFjE')
 # Create your views here.
 
 @api_view(['POST'])
