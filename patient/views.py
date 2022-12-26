@@ -78,3 +78,30 @@ def hospital_srch(request):
    return Response(hospitals, status=status.HTTP_200_OK)
     
 
+@api_view(['PUT','POST'])
+def mypage(request):
+    if request.method == 'POST':
+        user = request.user
+        patient = Patient.objects.get(author=user.id)
+        data = {
+            'id' : user.username,
+            'name' : patient.patient_name,
+            'birth' : patient.patient_birth,
+            'phone' : patient.patient_phone_number,
+            'email' : patient.patient_email,
+        }
+        return Response(data, status=status.HTTP_200_OK)
+    
+    elif request.method == 'PUT':
+        user = request.user # token을 통해서 user를 가져옴
+        patient = Patient.objects.get(author=user.id)
+        user.set_password(request.data['patient_password'])
+        user.save()
+        patient.patient_name = request.data['patient_name']
+        patient.patient_birth = request.data['patient_birth']
+        patient.patient_phone_number = request.data['patient_phone_number']
+        patient.patient_email = request.data['patient_email']
+        
+        patient.save()
+        
+        return Response(status=status.HTTP_200_OK)
