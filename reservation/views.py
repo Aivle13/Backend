@@ -52,19 +52,6 @@ def reservation(request):
                         )
         reservation.save()
 
-        """ hospital_data = Reservation.objects.filter(hospital=hospital)
-        
-        print()
-        print("남은 인원 수 : " + str(hospital_data.count()))
-        print(str(reservation.pk)+ "번 고객님" ) #현재 등록한 프라이머리 키
-        
-        data = {
-            'wait_count': hospital_data.count(),
-            'user_count' : reservation.pk,
-            'my_turn' : hospital_data.count()
-        }
-         """
-
         return Response(status=status.HTTP_200_OK)
     
     elif request.method == 'GET':
