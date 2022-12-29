@@ -129,3 +129,29 @@ def hospital_get_delete_reservation(request):
         return Response(status=status.HTTP_200_OK)
     
     
+@api_view(['POST'])
+def reservation_search(request):
+    user = request.user
+    patient = Patient.objects.get(author=user.id)
+    patient_request = Reservation.objects.filter(patient = patient, reservation_state = "A") #대기 예약 환자
+    
+    if patient_request.count() < 1: #환자가 없으면
+        return Response(status=status.HTTP_404_NOT_FOUND)
+        
+    patient_data = Reservation.objects.filter(hospital = patient_request[0].hospital, reservation_state = "A") #해당 병원에 대기중인 환자 명수
+    patient_pk = Reservation.objects.get(patient = patient, reservation_state = "A") # 고객 번호
+    myturn = 0
+    
+    for i in range(patient_data.count()):
+            if patient == patient_data[i].patient:
+                myturn = i+1
+
+    data = {
+        "name" : patient_request[0].hospital.hospital_name,
+        "address" : patient_request[0].hospital.hospital_address,
+        'wait_count': patient_data.count(),
+        'user_count' : patient_pk.pk,
+        'my_turn' : myturn,
+        'comment' : patient_pk.reservation_comment
+    }
+    return Response(data, status=status.HTTP_200_OK)
